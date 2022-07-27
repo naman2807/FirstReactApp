@@ -1,20 +1,59 @@
+import { useState } from 'react';
+import { Button, StyleSheet, View, FlatList} from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import GoalItem from './components/GoalItem';
+import GoalInput from './components/GoalInput';
 
 export default function App() {
+  const [modalIsVisible, updateModalVisibility] = useState(false)
+  const [taskItemList, taskItemListUpdate] = useState([]);
+
+  function updateListItemTask(taskItem){
+    taskItemListUpdate((list) => [...list, {text: taskItem, key: Math.random().toString()}]);
+    stopAddTaskHandler()
+  }
+
+  function deleteTaskHandler(id) {
+    taskItemListUpdate((list) => {
+        return list.filter((task) => task.key !== id);
+    });
+  }
+
+  function startAddTaskHandler() {
+    updateModalVisibility(true)
+  }
+
+  function stopAddTaskHandler() {
+    updateModalVisibility(false)
+  }
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
+    <>
+    <StatusBar style='light'/>
+    <View style={styles.appContainer}>
+      <Button title='Add New Task' color="#5e0acc" onPress={startAddTaskHandler}/>
+      <GoalInput addTask ={updateListItemTask} showList={stopAddTaskHandler} visible={modalIsVisible}/>
+      <View style={styles.listContainer}>
+        <FlatList data={taskItemList} renderItem={(itemData) => {
+            return <GoalItem text={itemData.item.text} id={itemData.item.key} onDeleteTask={deleteTaskHandler}/>
+        }}/>
+      </View>
     </View>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+  appContainer:{
+    flex:1,
+    paddingTop:70,
+    paddingHorizontal:16,
+    backgroundColor: "#311b6b",
+ },
+
+  listContainer:{
+    flex:5,
+    marginTop:10
+  }
+ 
 });
